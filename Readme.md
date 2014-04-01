@@ -1,7 +1,7 @@
-WebApp-MultiTenant-OpenIDConnect-DotNet
+WebApp-WebAPI-MultiTenant-OpenIDConnect-DotNet
 ===========================
 
-This sample shows how to build a multi-tenant .Net MVC web application that uses OpenID Connect to sign up and sign in users from any Azure Active Directory tenant, using the ASP.Net OpenID Connect OWIN middleware and the Active Directory Authentication Library (ADAL) for .NET.
+This sample shows how to build a multi-tenant .Net MVC web application that uses OpenID Connect to sign up and sign in users from any Azure Active Directory tenant, using the ASP.Net OpenID Connect OWIN middleware and the Active Directory Authentication Library (ADAL) for .NET. The sample also demonstrate how to leverage the authorization code received at sign in time to invoke the Graph API.
 
 For more information about how the protocols work in this scenario and other scenarios, see the [Authentication Scenarios for Azure AD](http://msdn.microsoft.com/aad) document.
 

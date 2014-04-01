@@ -32,4 +32,16 @@ namespace TodoListWebApp.Models
         public string UPN { get; set; }
         public string TenantID { get; set; }
     }
+
+    // Entity for saving tokens for accessing API
+    public class TokenCacheEntry
+    {
+        public int ID { get; set; }
+        public string SignedInUser { get; set; }
+        public string TokenRequestorUser { get; set; } 
+        public string ResourceID { get; set; }
+        public string AccessToken { get; set; }
+        public string RefreshToken { get; set; }
+        public DateTimeOffset Expiration { get; set; }
+    }
 }

@@ -10,7 +10,8 @@ using System.Threading.Tasks;
 using System.Configuration;
 using TodoListWebApp.DAL;
 using System.IdentityModel.Claims;
-using System.IdentityModel.Tokens;
+using Microsoft.IdentityModel.Clients.ActiveDirectory;
+using TodoListWebApp.Models;
 
 namespace TodoListWebApp
 {
@@ -20,7 +21,9 @@ namespace TodoListWebApp
         private TodoListWebAppContext db = new TodoListWebAppContext();
         public void ConfigureAuth(IAppBuilder app)
         {         
-            string ClientId = ConfigurationManager.AppSettings["ida:ClientID"];
+            string clientId = ConfigurationManager.AppSettings["ida:ClientID"];
+            string appKey = ConfigurationManager.AppSettings["ida:Password"];
+            string graphResourceID = "https://graph.windows.net";
             //fixed address for multitenant apps in the public cloud
             string Authority = "https://login.windows.net/common/";
 
@@ -31,7 +34,7 @@ namespace TodoListWebApp
             app.UseOpenIdConnectAuthentication(
                 new OpenIdConnectAuthenticationOptions
                 {
-                    Client_Id = ClientId,
+                    Client_Id = clientId,
                     Authority = Authority,
                     TokenValidationParameters = new System.IdentityModel.Tokens.TokenValidationParameters
                     {
@@ -41,13 +44,43 @@ namespace TodoListWebApp
                     },
                     Notifications = new OpenIdConnectAuthenticationNotifications()
                     {
+                        AccessCodeReceived = (context) =>
+                       {
+                           var code = context.Code;
+
+                           ClientCredential credential = new ClientCredential(clientId, appKey);
+                           string tenantID = context.ClaimsIdentity.FindFirst("http://schemas.microsoft.com/identity/claims/tenantid").Value;
+                           string signedInUserID = context.ClaimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+                           AuthenticationContext authContext = new AuthenticationContext(string.Format("https://login.windows.net/{0}", tenantID));
+                           AuthenticationResult result = authContext.AcquireTokenByAuthorizationCode(
+                               code, new Uri(HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Path)), credential, graphResourceID);
+
+
+
+                           TokenCacheEntry tce = new TokenCacheEntry
+                           {
+                               SignedInUser = signedInUserID,
+                               TokenRequestorUser = result.UserInfo.UserId,
+                               ResourceID = graphResourceID,
+                               AccessToken = result.AccessToken,
+                               RefreshToken = result.RefreshToken,
+                               Expiration = result.ExpiresOn.AddMinutes(-5)
+                           };
+                           var existing = db.TokenCache.FirstOrDefault(a => (a.SignedInUser == signedInUserID) && (a.ResourceID == graphResourceID));
+                           if (existing != null)
+                               db.TokenCache.Remove(existing);
+                           db.TokenCache.Add(tce);
+                           db.SaveChanges();
+                           return Task.FromResult(0);
+                       },
                         RedirectToIdentityProvider = (context) =>
                         {
                             // This ensures that the address used for sign in and sign out is picked up dynamically from the request
                             // this allows you to deploy your app (to Azure Web Sites, for example)without having to change settings
                             // Remember that the base URL of the address used here must be provisioned in Azure AD beforehand.
-                            string appBaseUrl = context.Request.Scheme + "://" + context.Request.Host + context.Request.PathBase;                         
-                            context.ProtocolMessage.Redirect_Uri = appBaseUrl;
+                            string appBaseUrl = context.Request.Scheme + "://" + context.Request.Host + context.Request.PathBase;
+                            context.ProtocolMessage.Redirect_Uri = appBaseUrl + "/";
                             context.ProtocolMessage.Post_Logout_Redirect_Uri = appBaseUrl;
                             return Task.FromResult(0);
                         },
@@ -63,10 +96,10 @@ namespace TodoListWebApp
                                 // the caller comes from an admin-consented, recorded issuer
                                 (db.Tenants.FirstOrDefault(a => ((a.IssValue == issuer) && (a.AdminConsented))) == null)
                                 // the caller is recorded in the db of users who went through the individual onboardoing
-                                && (db.Users.FirstOrDefault(b =>((b.UPN == UPN) && (b.TenantID == tenantID))) == null)
+                                && (db.Users.FirstOrDefault(b => ((b.UPN == UPN) && (b.TenantID == tenantID))) == null)
                                 )
                                 // the caller was neither from a trusted issuer or a registered user - throw to block the authentication flow
-                                throw new SecurityTokenValidationException();                            
+                                throw new System.IdentityModel.Tokens.SecurityTokenValidationException();
                             return Task.FromResult(0);
                         },
                         AuthenticationFailed = (context) =>
