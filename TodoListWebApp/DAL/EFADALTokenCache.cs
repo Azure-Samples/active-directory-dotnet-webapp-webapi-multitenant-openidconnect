@@ -55,7 +55,7 @@ namespace TodoListWebApp.DAL
 
                 // retrieve last write from the DB
                 // if there's a lock, wait
-                // TBD
+                    // TBD
                 // if it's not in memory OR
                 // if it's in memory but older than last write
                 if (status.First().LastWrite > Cache.LastWrite)
@@ -79,8 +79,7 @@ namespace TodoListWebApp.DAL
                     WriteLock = false
                 };
 
-                //// update the DB and the lastwrite
-                //db.PerUserCacheList.Attach(Cache);
+                //// update the DB and the lastwrite                
                 db.Entry(Cache).State = Cache.EntryId == 0 ? EntityState.Added : EntityState.Modified;                
                 db.SaveChanges();
                 this.HasStateChanged = false;
