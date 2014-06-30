@@ -20,6 +20,8 @@ namespace TodoListWebApp.DAL
         public DbSet<User> Users { get; set; }
         public DbSet<TokenCacheEntry> TokenCache { get; set; }
 
+        public DbSet<PerWebUserCache> PerUserCacheList { get; set; }
+
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
             modelBuilder.Conventions.Remove<PluralizingTableNameConvention>();

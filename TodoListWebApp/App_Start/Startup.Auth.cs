@@ -34,7 +34,7 @@ namespace TodoListWebApp
             app.UseOpenIdConnectAuthentication(
                 new OpenIdConnectAuthenticationOptions
                 {
-                    Client_Id = clientId,
+                    ClientId = clientId,
                     Authority = Authority,
                     TokenValidationParameters = new System.IdentityModel.Tokens.TokenValidationParameters
                     {
@@ -44,34 +44,34 @@ namespace TodoListWebApp
                     },
                     Notifications = new OpenIdConnectAuthenticationNotifications()
                     {
-                        AccessCodeReceived = (context) =>
+                        AuthorizationCodeReceived = (context) =>
                        {
                            var code = context.Code;
 
                            ClientCredential credential = new ClientCredential(clientId, appKey);
-                           string tenantID = context.ClaimsIdentity.FindFirst("http://schemas.microsoft.com/identity/claims/tenantid").Value;
-                           string signedInUserID = context.ClaimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
+                           string tenantID = context.AuthenticationTicket.Identity.FindFirst("http://schemas.microsoft.com/identity/claims/tenantid").Value;
+                           string signedInUserID = context.AuthenticationTicket.Identity.FindFirst(ClaimTypes.NameIdentifier).Value;
 
-                           AuthenticationContext authContext = new AuthenticationContext(string.Format("https://login.windows.net/{0}", tenantID));
+                           AuthenticationContext authContext = new AuthenticationContext(string.Format("https://login.windows.net/{0}", tenantID), new EFADALTokenCache(signedInUserID));
                            AuthenticationResult result = authContext.AcquireTokenByAuthorizationCode(
                                code, new Uri(HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Path)), credential, graphResourceID);
 
 
 
-                           TokenCacheEntry tce = new TokenCacheEntry
-                           {
-                               SignedInUser = signedInUserID,
-                               TokenRequestorUser = result.UserInfo.UserId,
-                               ResourceID = graphResourceID,
-                               AccessToken = result.AccessToken,
-                               RefreshToken = result.RefreshToken,
-                               Expiration = result.ExpiresOn.AddMinutes(-5)
-                           };
-                           var existing = db.TokenCache.FirstOrDefault(a => (a.SignedInUser == signedInUserID) && (a.ResourceID == graphResourceID));
-                           if (existing != null)
-                               db.TokenCache.Remove(existing);
-                           db.TokenCache.Add(tce);
-                           db.SaveChanges();
+                           //TokenCacheEntry tce = new TokenCacheEntry
+                           //{
+                           //    SignedInUser = signedInUserID,
+                           //    TokenRequestorUser = result.UserInfo.DisplayableId,
+                           //    ResourceID = graphResourceID,
+                           //    AccessToken = result.AccessToken,
+                           //    RefreshToken = result.RefreshToken,
+                           //    Expiration = result.ExpiresOn.AddMinutes(-5)
+                           //};
+                           //var existing = db.TokenCache.FirstOrDefault(a => (a.SignedInUser == signedInUserID) && (a.ResourceID == graphResourceID));
+                           //if (existing != null)
+                           //    db.TokenCache.Remove(existing);
+                           //db.TokenCache.Add(tce);
+                           //db.SaveChanges();
                            return Task.FromResult(0);
                        },
                         RedirectToIdentityProvider = (context) =>
@@ -80,8 +80,8 @@ namespace TodoListWebApp
                             // this allows you to deploy your app (to Azure Web Sites, for example)without having to change settings
                             // Remember that the base URL of the address used here must be provisioned in Azure AD beforehand.
                             string appBaseUrl = context.Request.Scheme + "://" + context.Request.Host + context.Request.PathBase;
-                            context.ProtocolMessage.Redirect_Uri = appBaseUrl + "/";
-                            context.ProtocolMessage.Post_Logout_Redirect_Uri = appBaseUrl;
+                            context.ProtocolMessage.RedirectUri = appBaseUrl + "/";
+                            context.ProtocolMessage.PostLogoutRedirectUri = appBaseUrl;
                             return Task.FromResult(0);
                         },
                         // we use this notification for injecting our custom logic
@@ -104,7 +104,8 @@ namespace TodoListWebApp
                         },
                         AuthenticationFailed = (context) =>
                         {
-                            context.Redirect("/Home/Error");
+                            context.OwinContext.Response.Redirect("/Home/Error");
+                            context.HandleResponse(); // Suppress the exception
                             return Task.FromResult(0);
                         }
                     }
