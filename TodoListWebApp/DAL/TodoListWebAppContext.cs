@@ -18,8 +18,6 @@ namespace TodoListWebApp.DAL
         public DbSet<Todo> Todoes { get; set; }
         public DbSet<Tenant> Tenants { get; set; }
         public DbSet<User> Users { get; set; }
-        public DbSet<TokenCacheEntry> TokenCache { get; set; }
-
         public DbSet<PerWebUserCache> PerUserCacheList { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)

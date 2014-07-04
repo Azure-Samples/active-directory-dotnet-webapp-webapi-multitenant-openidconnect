@@ -56,22 +56,6 @@ namespace TodoListWebApp
                            AuthenticationResult result = authContext.AcquireTokenByAuthorizationCode(
                                code, new Uri(HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Path)), credential, graphResourceID);
 
-
-
-                           //TokenCacheEntry tce = new TokenCacheEntry
-                           //{
-                           //    SignedInUser = signedInUserID,
-                           //    TokenRequestorUser = result.UserInfo.DisplayableId,
-                           //    ResourceID = graphResourceID,
-                           //    AccessToken = result.AccessToken,
-                           //    RefreshToken = result.RefreshToken,
-                           //    Expiration = result.ExpiresOn.AddMinutes(-5)
-                           //};
-                           //var existing = db.TokenCache.FirstOrDefault(a => (a.SignedInUser == signedInUserID) && (a.ResourceID == graphResourceID));
-                           //if (existing != null)
-                           //    db.TokenCache.Remove(existing);
-                           //db.TokenCache.Add(tce);
-                           //db.SaveChanges();
                            return Task.FromResult(0);
                        },
                         RedirectToIdentityProvider = (context) =>
