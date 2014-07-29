@@ -22,6 +22,7 @@ namespace TodoListWebApp.Controllers
         }
         // sign out triggered from the Sign Out gesture in the UI
         // after sign out, it redirects to Post_Logout_Redirect_Uri (as set in Startup.Auth.cs)
+        // To flush tokens from the cache on user signout, add a call here to authContext.TokenCache.clear()
         public void SignOut()
         {
             HttpContext.GetOwinContext().Authentication.SignOut(
