@@ -1,4 +1,5 @@
 ﻿using Microsoft.Azure.ActiveDirectory.GraphClient;
+using Microsoft.Azure.ActiveDirectory.GraphClient.Extensions;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using Microsoft.Owin.Security;
 using Microsoft.Owin.Security.Cookies;
@@ -8,6 +9,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 using System.Security.Claims;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using TodoListWebApp.DAL;
@@ -22,7 +24,7 @@ namespace TodoListWebApp.Controllers
         private TodoListWebAppContext db = new TodoListWebAppContext();
 
         // GET: UserProfile
-        public ActionResult Index()
+        public async Task<ActionResult> Index()
         {
             string clientId = ConfigurationManager.AppSettings["ida:ClientID"];
             string appKey = ConfigurationManager.AppSettings["ida:Password"];
@@ -36,18 +38,15 @@ namespace TodoListWebApp.Controllers
 
             try
             {
-                // get a token for the Graph without triggering any user interaction (from the cache, via multi-resource refresh token, etc)
-                ClientCredential clientcred = new ClientCredential(clientId, appKey);
-                // initialize AuthenticationContext with the token cache of the currently signed in user, as kept in the app's EF DB
-                AuthenticationContext authContext = new AuthenticationContext(string.Format("https://login.windows.net/{0}", tenantID), new EFADALTokenCache(signedInUserID));
-                AuthenticationResult result = authContext.AcquireTokenSilent(graphResourceID, clientcred, new UserIdentifier(userObjectID,UserIdentifierType.UniqueId));
                 
                 // use the token for querying the graph
                 Guid ClientRequestId = Guid.NewGuid();
-                GraphConnection graphConnection = new GraphConnection(result.AccessToken, ClientRequestId, graphSettings);
-                User user = graphConnection.Get<User>(userObjectID);
+                ActiveDirectoryClient graphClient = new ActiveDirectoryClient(
+                    new Uri(graphResourceID + '/' + tenantID),
+                    async () => getTokenForGraph(tenantID, signedInUserID, userObjectID, clientId, appKey, graphResourceID));
 
-                return View(user);
+                IPagedCollection<IUser> users = await graphClient.Users.Where(u => u.ObjectId.Equals(userObjectID)).ExecuteAsync();
+                return View((User)users.CurrentPage.First());
             }
             // if the above failed, the user needs to explicitly re-authenticate for the app to obtain the required token
             catch (Exception ee)
@@ -59,6 +58,16 @@ namespace TodoListWebApp.Controllers
         public void RefreshSession()
         {
             HttpContext.GetOwinContext().Authentication.Challenge(new AuthenticationProperties { RedirectUri = "/UserProfile" }, OpenIdConnectAuthenticationDefaults.AuthenticationType);
+        }
+
+        private string getTokenForGraph(string tenantID, string signedInUserID, string userObjectID, string clientId, string appKey, string graphResourceID)
+        {
+            // get a token for the Graph without triggering any user interaction (from the cache, via multi-resource refresh token, etc)
+            ClientCredential clientcred = new ClientCredential(clientId, appKey);
+            // initialize AuthenticationContext with the token cache of the currently signed in user, as kept in the app's EF DB
+            AuthenticationContext authContext = new AuthenticationContext(string.Format("https://login.windows.net/{0}", tenantID), new EFADALTokenCache(signedInUserID));
+            AuthenticationResult result = authContext.AcquireTokenSilent(graphResourceID, clientcred, new UserIdentifier(userObjectID, UserIdentifierType.UniqueId));
+            return result.AccessToken;
         }
     }
 }
