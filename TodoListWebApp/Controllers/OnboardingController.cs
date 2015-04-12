@@ -43,7 +43,7 @@ namespace TodoListWebApp.Controllers
             //create an OAuth2 request, using the web app as the client.
             //this will trigger a consent flow that will provision the app in the target tenant
             string authorizationRequest = String.Format(
-                "https://login.windows.net/common/oauth2/authorize?response_type=code&client_id={0}&resource={1}&redirect_uri={2}&state={3}",
+                "https://login.microsoftonline.com/common/oauth2/authorize?response_type=code&client_id={0}&resource={1}&redirect_uri={2}&state={3}",
                  Uri.EscapeDataString(ConfigurationManager.AppSettings["ida:ClientID"]),
                  Uri.EscapeDataString("https://graph.windows.net"),
                  Uri.EscapeDataString(this.Request.Url.GetLeftPart(UriPartial.Authority).ToString() + "/Onboarding/ProcessCode"),

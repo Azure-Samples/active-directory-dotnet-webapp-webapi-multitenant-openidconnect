@@ -25,7 +25,7 @@ namespace TodoListWebApp
             string appKey = ConfigurationManager.AppSettings["ida:Password"];
             string graphResourceID = "https://graph.windows.net";
             //fixed address for multitenant apps in the public cloud
-            string Authority = "https://login.windows.net/common/";
+            string Authority = "https://loginmicrosoftonline.com/common/";
 
             app.SetDefaultSignInAsAuthenticationType(CookieAuthenticationDefaults.AuthenticationType);
 
@@ -52,7 +52,7 @@ namespace TodoListWebApp
                            string tenantID = context.AuthenticationTicket.Identity.FindFirst("http://schemas.microsoft.com/identity/claims/tenantid").Value;
                            string signedInUserID = context.AuthenticationTicket.Identity.FindFirst(ClaimTypes.NameIdentifier).Value;
 
-                           AuthenticationContext authContext = new AuthenticationContext(string.Format("https://login.windows.net/{0}", tenantID), new EFADALTokenCache(signedInUserID));
+                           AuthenticationContext authContext = new AuthenticationContext(string.Format("https://login.microsoftonline.com/{0}", tenantID), new EFADALTokenCache(signedInUserID));
                            AuthenticationResult result = authContext.AcquireTokenByAuthorizationCode(
                                code, new Uri(HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Path)), credential, graphResourceID);
 
