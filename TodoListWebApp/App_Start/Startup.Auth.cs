@@ -25,7 +25,7 @@ namespace TodoListWebApp
             string appKey = ConfigurationManager.AppSettings["ida:Password"];
             string graphResourceID = "https://graph.windows.net";
             //fixed address for multitenant apps in the public cloud
-            string Authority = "https://loginmicrosoftonline.com/common/";
+            string Authority = "https://login.microsoftonline.com/common/";
 
             app.SetDefaultSignInAsAuthenticationType(CookieAuthenticationDefaults.AuthenticationType);
 
