@@ -43,7 +43,7 @@ namespace TodoListWebApp.Controllers
                 Guid ClientRequestId = Guid.NewGuid();
                 ActiveDirectoryClient graphClient = new ActiveDirectoryClient(
                     new Uri(graphResourceID + '/' + tenantID),
-                    async () => getTokenForGraph(tenantID, signedInUserID, userObjectID, clientId, appKey, graphResourceID));
+                    () => getTokenForGraph(tenantID, signedInUserID, userObjectID, clientId, appKey, graphResourceID));
 
                 IPagedCollection<IUser> users = await graphClient.Users.Where(u => u.ObjectId.Equals(userObjectID)).ExecuteAsync();
                 return View((User)users.CurrentPage.First());
@@ -60,13 +60,13 @@ namespace TodoListWebApp.Controllers
             HttpContext.GetOwinContext().Authentication.Challenge(new AuthenticationProperties { RedirectUri = "/UserProfile" }, OpenIdConnectAuthenticationDefaults.AuthenticationType);
         }
 
-        private string getTokenForGraph(string tenantID, string signedInUserID, string userObjectID, string clientId, string appKey, string graphResourceID)
+        private async Task<string> getTokenForGraph(string tenantID, string signedInUserID, string userObjectID, string clientId, string appKey, string graphResourceID)
         {
             // get a token for the Graph without triggering any user interaction (from the cache, via multi-resource refresh token, etc)
             ClientCredential clientcred = new ClientCredential(clientId, appKey);
             // initialize AuthenticationContext with the token cache of the currently signed in user, as kept in the app's EF DB
             AuthenticationContext authContext = new AuthenticationContext(string.Format("https://login.microsoftonline.com/{0}", tenantID), new EFADALTokenCache(signedInUserID));
-            AuthenticationResult result = authContext.AcquireTokenSilent(graphResourceID, clientcred, new UserIdentifier(userObjectID, UserIdentifierType.UniqueId));
+            AuthenticationResult result = await authContext.AcquireTokenSilentAsync(graphResourceID, clientcred, new UserIdentifier(userObjectID, UserIdentifierType.UniqueId));
             return result.AccessToken;
         }
     }

@@ -10,6 +10,7 @@ using TodoListWebApp.Models;
 using TodoListWebApp.DAL;
 using System.Configuration;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
+using System.Threading.Tasks;
 
 namespace TodoListWebApp.Controllers
 {
@@ -57,7 +58,7 @@ namespace TodoListWebApp.Controllers
         }
 
          // GET: /TOnboarding/ProcessCode
-        public ActionResult ProcessCode(string code, string error, string error_description, string resource, string state)
+        public async Task<ActionResult> ProcessCode(string code, string error, string error_description, string resource, string state)
         {
             // Is this a response to a request we generated? Let's see if the state is carrying an ID we previously saved
             // ---if we don't, return an error            
@@ -73,7 +74,7 @@ namespace TodoListWebApp.Controllers
                 ClientCredential credential = new ClientCredential(ConfigurationManager.AppSettings["ida:ClientID"],
                                                                    ConfigurationManager.AppSettings["ida:Password"]);
                 AuthenticationContext authContext = new AuthenticationContext("https://login.windows.net/common/");
-                AuthenticationResult result = authContext.AcquireTokenByAuthorizationCode(
+                AuthenticationResult result = await authContext.AcquireTokenByAuthorizationCodeAsync(
                     code, new Uri(Request.Url.GetLeftPart(UriPartial.Path)), credential);
 
                 var myTenant = db.Tenants.FirstOrDefault(a => a.IssValue == state);
