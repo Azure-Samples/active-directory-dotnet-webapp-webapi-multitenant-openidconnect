@@ -47,7 +47,11 @@ If you want to test both the Administrator and User consent flows discussed belo
 8. For the Sign-on URL, enter the base URL for the sample, which is by default `https://localhost:44302/`.
 9. For the App ID URI, enter `https://<your_tenant_domain>/TodoListWebApp_MT`, replacing `<your_tenant_domain>` with the domain of your Azure AD tenant (either in the form `<tenant_name>.onmicrosoft.com` or your own custom domain if you registered it in Azure Active Directory).
 10. Click the Complete checkmark on the lower right corner. Your application is now provisioned and you will be returned to it's main application page.
-11. Click on the Configure tab of your application.
+1. While still in the Azure portal, click the **Configure** tab of your application.
+2. Locate the **Manage Manifest** button in the bottom drawer.  Click it and download your application's manifest as a `.json` file.
+3. Open the `.json` file in a text editor and change the `logoutUrl` property to `https://localhost:44302/Account/EndSession`.  This is the default single sign out URL for this sample.
+4. Back in the Azure portal, click **Manage Manifest** then **Upload Manifest**, and upload your updated `.json` file.
+5. Finally, locate the **Client ID** value in the **Configure** tab and copy it to your clipboard.  You will need it shortly.
 12. Find "the application is multi-tenant" switch and flip it to "yes", then click the Save option at the bottom of the page.
 12. Scroll down to the "Permissions to other applications" section. On the Windows Azure Active Directory row, click on the "Delegated Permissions" combo box and note that the "Sign-on and read users profile" permission is already enabled, which is assigned by default whenever a new application is registered. This will allow our application to receive delegated permission to authenticate and read user profile data, for a given user account. The list of permissions provided here are known as permissions scopes, some of which require Administrator consent. See the [Graph API Permissions Scopes](https://msdn.microsoft.com/Library/Azure/Ad/Graph/api/graph-api-permission-scopes) article for more information.
 
