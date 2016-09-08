@@ -37,34 +37,24 @@ If you want to test both the Administrator and User consent flows discussed belo
 
 ### Step 3:  Register the sample with your Azure Active Directory tenant
 
-1. Sign in to the [Azure management portal](https://manage.windowsazure.com).
-2. Click on Active Directory in the left hand nav.
-3. Click the directory tenant where you wish to register the sample application.
-4. Click the Applications tab.
-5. Click the Add option at the bottom of the page.
-6. Click "Add an application my organization is developing".
-7. Enter a friendly name for the application, for example "TodoListWebApp_MT", select "Web Application and/or Web API", and click the Next arrow on the lower right.
-8. For the Sign-on URL, enter the base URL for the sample, which is by default `https://localhost:44302/`.
-9. For the App ID URI, enter `https://<your_tenant_domain>/TodoListWebApp_MT`, replacing `<your_tenant_domain>` with the domain of your Azure AD tenant (either in the form `<tenant_name>.onmicrosoft.com` or your own custom domain if you registered it in Azure Active Directory).
-10. Click the Complete checkmark on the lower right corner. Your application is now provisioned and you will be returned to it's main application page.
-1. While still in the Azure portal, click the **Configure** tab of your application.
-2. Locate the **Manage Manifest** button in the bottom drawer.  Click it and download your application's manifest as a `.json` file.
-3. Open the `.json` file in a text editor and change the `logoutUrl` property to `https://localhost:44302/Account/EndSession`.  This is the default single sign out URL for this sample.
-4. Back in the Azure portal, click **Manage Manifest** then **Upload Manifest**, and upload your updated `.json` file.
-5. Finally, locate the **Client ID** value in the **Configure** tab and copy it to your clipboard.  You will need it shortly.
-12. Find "the application is multi-tenant" switch and flip it to "yes", then click the Save option at the bottom of the page.
-12. Scroll down to the "Permissions to other applications" section. On the Windows Azure Active Directory row, click on the "Delegated Permissions" combo box and note that the "Sign-on and read users profile" permission is already enabled, which is assigned by default whenever a new application is registered. This will allow our application to receive delegated permission to authenticate and read user profile data, for a given user account. The list of permissions provided here are known as permissions scopes, some of which require Administrator consent. See the [Graph API Permissions Scopes](https://msdn.microsoft.com/Library/Azure/Ad/Graph/api/graph-api-permission-scopes) article for more information.
+1. Sign in to the [Azure portal](https://portal.azure.com).
+2. On the top bar, click on your account and under the **Directory** list, choose the Active Directory tenant where you wish to register your application.
+2. Click on **More Services** in the left hand nav, and choose **Azure Active Directory**.
+3. Click on **Registered Applications** and choose **Add**.
+4. Enter a friendly name for the application, for example 'TodoListWebApp_MT' and select 'Web Application and/or Web API' as the Application Type. For the sign-on URL, enter the base URL for the sample, which is by default `https://localhost:44302/`. Click on **Create** to create the application.
+5. While still in the Azure portal, choose your application, click on **Settings** and choose **Properties**.
+6. Find the Application ID value and copy it to the clipboard.
+7. In the same page, change the "Logout Url" to `https://localhost:44302/Account/EndSession`.  This is the default single sign out URL for this sample.
+8. Find "multi-tenanted" switch and flip it to yes. 
+9. Configure Permissions for your application - in the Settings menu, choose the 'Required permissions' section, click on **Add**, then **Select an API**, and select 'Microsoft Graph' (this is the Graph API). Then, click on  **Select Permissions** and select 'Sign in and read user profile'. This will allow our application to receive delegated permission to authenticate and read user profile data, for a given user account. The list of permissions provided here are known as permissions scopes, some of which require Administrator consent. See the [Graph API Permissions Scopes](https://msdn.microsoft.com/Library/Azure/Ad/Graph/api/graph-api-permission-scopes) article for more information.
 
 Don't close the browser yet, as we will still need to work with the portal for few more steps. 
 
 ### Step 4:  Provision a key for your app in your Azure Active Directory tenant
 
 The application will need to authenticate with Azure AD in order to participate in the Auth2 flow, which requires you to associate a private key with the application you registered in your tenant. In order to do this:
- 
-1. Click the Configure tab of your application.
-2. Scroll down to the "Keys" section. In the Select Duration dropdown, pick a value (either is fine for the demo).
-3. Click the Save option at the bottom of the page.
-4. Once the Save operation has completed, the value of the key appears. Copy the key to the clipboard. **Important: this is the only opportunity you have to access the value of the key, if you don't use it now you'll have to create a new one.**
+
+From the Settings menu, choose **Keys** and add a key - select a key duration of either 1 year or 2 years. When you save this page, the key value will be displayed, copy and save the value in a safe location - you will need this key later to configure the project in Visual Studio - this key value will not be displayed again, nor retrievable by any other means, so please record it as soon as it is visible from the Azure Portal.
 
 Leave the browser open to this page. 
 
@@ -75,8 +65,8 @@ At this point we are ready to paste the configuration settings into the VS proje
 1. Open the solution in Visual Studio 2013, by double clicking on the WebApp-WebAPI-MultiTenant-OpenIDConnect-DotNet.sln file in the repository you closed in Step 1.
 2. Open the `web.config` file in the TodoListWebApp project, and locate the <appSettings> section.
 3. Find the key `ida:Password` and replace the value in quotes in the `value` attribute with the string you copied in step 4.
-4. Go back to the portal, find the CLIENT ID field and copy its content to the clipboard
-5. Find the key `ida:ClientID` and replace the value in quotes the `value` attribute with the CLIENT ID from the Azure portal.
+4. Go back to the portal, find the Application ID field and copy its content to the clipboard
+5. Find the key `ida:ClientID` and replace the value in quotes the `value` attribute with the Application ID from the Azure portal.
 
 ### Step 6:  [optional] Create an Azure Active Directory test tenant 
 
