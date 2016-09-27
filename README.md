@@ -17,11 +17,8 @@ For more information about how the protocols work in this scenario and other sce
 Getting started is simple!  To run this sample you will need:
 - Visual Studio 2013
 - An Internet connection
-- An Azure subscription (a free trial is sufficient)
-
-Every Azure subscription has an associated Azure Active Directory tenant, which provides authentication and authorization services for the subscription. You can easily create new tenants within your subscription for testing purposes. For details on the relationship between an Azure subscription and Azure AD tenant, see [How Azure subscriptions are associated with Azure AD](https://azure.microsoft.com/documentation/articles/active-directory-how-subscriptions-associated-directory/#manage-the-directory-for-your-office-365-subscription-in-azure).
-
-If you don't already have an Azure subscription, you can get a free subscription by signing up at [http://wwww.windowsazure.com](http://www.windowsazure.com). All of the Azure AD features used by this sample are available free of charge. 
+- An Azure Active Directory (Azure AD) tenant. For more information on how to get an Azure AD tenant, please see [How to get an Azure AD tenant](https://azure.microsoft.com/en-us/documentation/articles/active-directory-howto-tenant/) 
+- A user account in your Azure AD tenant. This sample will not work with a Microsoft account, so if you signed in to the Azure portal with a Microsoft account and have never created a user account in your directory before, you need to do that now.
 
 ### Step 1:  Clone or download this repository
 
@@ -33,7 +30,7 @@ From your shell or command line:
 
 If you already have an Organizational user account in your Azure Active Directory tenant that you would like to use for consent and authentication, you can skip to the next step.  This sample will not work with a Microsoft account, so if you signed in to the Azure portal with a Microsoft account and have never created a user account in your directory before, you need to do that now. You can find instructions to do that [here](http://www.cloudidentity.com/blog/2013/12/11/setting-up-an-asp-net-project-with-organizational-authentication-requires-an-organizational-account/). 
 
-If you want to test both the Administrator and User consent flows discussed below, you will want to create two Organizational accounts: one assigned to the "User" role and one assigned to the ["Global Administrator"](https://azure.microsoft.com/documentation/articles/active-directory-assign-admin-roles/) role. If you want to use the Organizational account to sign-in to the Azure portal, don't forget to also add it as a co-administrator of your Azure subscription.
+If you want to test both the Administrator and User consent flows discussed below, you will want to create two Organizational accounts: one assigned to the "User" role and one assigned to the ["Global Administrator"](https://azure.microsoft.com/documentation/articles/active-directory-assign-admin-roles/) role.
 
 ### Step 3:  Register the sample with your Azure Active Directory tenant
 
