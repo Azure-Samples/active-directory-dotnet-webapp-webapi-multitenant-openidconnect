@@ -73,7 +73,7 @@ namespace TodoListWebApp.Controllers
                 // ------get a token for the Graph, that will provide us with information abut the caller
                 ClientCredential credential = new ClientCredential(ConfigurationManager.AppSettings["ida:ClientID"],
                                                                    ConfigurationManager.AppSettings["ida:Password"]);
-                AuthenticationContext authContext = new AuthenticationContext("https://login.windows.net/common/");
+                AuthenticationContext authContext = new AuthenticationContext("https://login.microsoftonline.com/common/");
                 AuthenticationResult result = await authContext.AcquireTokenByAuthorizationCodeAsync(
                     code, new Uri(Request.Url.GetLeftPart(UriPartial.Path)), credential);
 
