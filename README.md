@@ -71,7 +71,7 @@ At this point we are ready to paste the configuration settings into the VS proje
 This sample shows how to take advantage of the consent framework in Azure AD to enable an application to be multi-tenant aware, which allows authentication by user accounts from any Azure AD tenant. To see that part of the sample in action, you need to have access to user accounts from a tenant that is different from the one you used for registering the application. A great example of this type of scenario, is an application that needs to allow Office365 user accounts (which are homed in a separate Azure AD) to authenticate and consent access to their Office365 tenant. The simplest way of doing this is to create a new directory tenant in your Azure subscription (just navigate to the main Active Directory page in the portal and click Add) and add test users.
 This step is optional as you can also use accounts from the same directory, but if you do you will not see the consent prompts as the app is already approved. 
 
-### Step 5:  Run the sample
+### Step 7:  Run the sample
 
 The sample implements two distinct tasks: the onboarding of a new customer (aka: Sign up), and regular sign in & use of the application.
 ####  Sign up
@@ -112,7 +112,7 @@ This is the application proper.
 Its core resource is the Todo controller, a CRUD editor which leverages claims and the entity framework to manage a personalized list of Todo items for the currently signed in user.
 The Todo controller is secured via OpenId Connect, according to the logic in App_Start/Startup.Auth.cs.
 
-####Notable code
+#### Notable code
 
 The following code turns off the default Issuer validation, given that in the multitenant case the list of acceptable issuer values is dynamic and cannot be acquired via metadata (as it is instead the case for the single organization case). 
 
