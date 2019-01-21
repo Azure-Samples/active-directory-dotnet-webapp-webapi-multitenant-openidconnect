@@ -1,0 +1,61 @@
+{
+  "Sample": {
+    "Title": "Build a multi-tenant SaaS web application that calls a web API using Azure AD",
+    "Level": 200,
+    "Client": ".NET Web App (MVC)",
+    "Service": "Microsoft Graph",    
+    "RepositoryUrl": "active-directory-dotnet-webapp-webapi-multitenant-openidconnect",
+    "Endpoint": "AAD v1.0"
+  },
+
+  /*
+    This section describes the Azure AD Applications to configure, and their dependencies
+  */
+  "AADApps": [
+    {
+      "Id": "service",
+      "Name": "TodoList_MT",
+      "Kind": "WebApp",
+      "IsPublicClient": false,
+      "HomePage": "https://localhost:44302/",
+      "ReplyUrls": "https://localhost:44302/",
+      "LogoutUrl": "https://localhost:44302/Account/EndSession",
+      "PasswordCredentials": "Auto",
+      "IsAvailableToOtherTenants":true,
+      "RequiredResourcesAccess": [
+        {
+          "Resource": "Microsoft Graph",
+          "DelegatedPermissions": [ "User.Read" ]
+        }
+      ]
+    }
+  ],
+
+  /*
+    This section describes how to update the code in configuration files from the apps coordinates, once the apps
+    are created in Azure AD.
+    Each section describes a configuration file, for one of the apps, it's type (XML, JSon, plain text), its location
+    with respect to the root of the sample, and the mappping (which string in the config file is mapped to which value
+  */
+  "CodeConfiguration": [
+    {
+      "App": "service",
+      "SettingKind": "XML",
+      "SettingFile": "\\..\\TodoList_MT\\Web.Config",
+      "Mappings": [        
+        {
+          "key": "ida:ClientId",
+          "value": ".AppId"
+        },
+        {
+          "key": "ida:ClientSecret",
+          "value": ".AppKey"
+        },
+        {
+          "key": "ida:RedirectUri",
+          "value": "service.HomePage"
+        }
+      ]
+    }    
+  ]
+}
