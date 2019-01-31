@@ -15,7 +15,7 @@ For more information about how the protocols work in this scenario and other sce
 ## How To Run This Sample
 
 Getting started is simple!  To run this sample you will need:
-- Visual Studio 2013
+- [Visual Studio 2017](https://aka.ms/vsdownload)
 - An Internet connection
 - An Azure Active Directory (Azure AD) tenant. For more information on how to get an Azure AD tenant, please see [How to get an Azure AD tenant](https://azure.microsoft.com/en-us/documentation/articles/active-directory-howto-tenant/) 
 - A user account in your Azure AD tenant. This sample will not work with a Microsoft account, so if you signed in to the Azure portal with a Microsoft account and have never created a user account in your directory before, you need to do that now.
@@ -34,37 +34,58 @@ If you want to test both the Administrator and User consent flows discussed belo
 
 ### Step 3:  Register the sample with your Azure Active Directory tenant
 
-1. Sign in to the [Azure portal](https://portal.azure.com).
-2. On the top bar, click on your account and under the **Directory** list, choose the Active Directory tenant where you wish to register your application.
-3. Click on **More Services** in the left hand nav, and choose **Azure Active Directory**.
-4. Click on **App registrations** and choose **Add**.
-5. Enter a friendly name for the application, for example 'TodoListWebApp_MT' and select 'Web Application and/or Web API' as the Application Type. For the sign-on URL, enter the base URL for the sample, which is by default `https://localhost:44302/`. Click on **Create** to create the application.
-6. While still in the Azure portal, choose your application, click on **Settings** and choose **Properties**.
-7. Find the Application ID value and copy it to the clipboard.
-8. In the same page, change the "Logout Url" to `https://localhost:44302/Account/EndSession`.  This is the default single sign out URL for this sample.
-9. Find "multi-tenanted" switch and flip it to yes. 
-10. For the App ID URI, enter `https://<your_tenant_domain>/TodoListWebApp_MT`, replacing `<your_tenant_domain>` with the domain of your Azure AD tenant (either in the form `<tenant_name>.onmicrosoft.com` or your own custom domain if you registered it in Azure Active Directory).
-11. Configure Permissions for your application - in the Settings menu, choose the 'Required permissions' section, click on **Add**, then **Select an API**, and select 'Microsoft Graph' (this is the Graph API). Then, click on  **Select Permissions** and select 'Sign in and read user profile'. This will allow our application to receive delegated permission to authenticate and read user profile data, for a given user account. The list of permissions provided here are known as permissions scopes, some of which require Administrator consent. See the [Graph API Permissions Scopes](https://msdn.microsoft.com/Library/Azure/Ad/Graph/api/graph-api-permission-scopes) article for more information.
+As a first step you'll need to:
 
-Don't close the browser yet, as we will still need to work with the portal for few more steps. 
+1. Sign in to the [Azure portal](https://portal.azure.com) using either a work or school account or a personal Microsoft account.
+1. If your account gives you access to more than one tenant, select your account in the top right corner, and set your portal session to the desired Azure AD tenant
+   (using **Switch Directory**).
+1. In the left-hand navigation pane, select the **Azure Active Directory** service, and then select **App registrations (Preview)**.
 
-### Step 4:  Provision a key for your app in your Azure Active Directory tenant
+#### Register the service app (TodoListWebApp_MT)
 
-The application will need to authenticate with Azure AD in order to participate in the Auth2 flow, which requires you to associate a private key with the application you registered in your tenant. In order to do this:
+1. In **App registrations (Preview)** page, select **New registration**.
+1. When the **Register an application page** appears, enter your application's registration information:
+   - In the **Name** section, enter a meaningful application name that will be displayed to users of the app, for example `TodoListWebApp_MT`.
+   - In the **Supported account types** section, select **Accounts in any organizational directory and personal Microsoft accounts (e.g. Skype, Xbox, Outlook.com)**.
+   - In the Redirect URI (optional) section, select **Web** in the combo-box and enter the following redirect URIs.
+       - `https://localhost:44302/`
+       - `https://localhost:44302/Onboarding/ProcessCode`
+1. Select **Register** to create the application.
+1. On the app **Overview** page, find the **Application (client) ID** value and record it for later. You'll need it to configure the Visual Studio configuration file for this project.
+1. In the list of pages for the app, select **Authentication**.
+   - In the **Advanced settings** section set **Logout URL** to `https://localhost:44302/Account/EndSession`
+   - In the **Advanced settings** | **Implicit grant** section, check **Access tokens** and **ID tokens** as this sample requires 
+   the [Implicit grant flow](https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-implicit-grant-flow)to be enabled to
+   sign-in the user, and call an API.
+1. Select **Save**.
+1. From the **Certificates & secrets** page, in the **Client secrets** section, choose **New client secret**:
 
-From the Settings menu, choose **Keys** and add a key - select a key duration of either 1 year or 2 years. When you save this page, the key value will be displayed, copy and save the value in a safe location - you will need this key later to configure the project in Visual Studio - this key value will not be displayed again, nor retrievable by any other means, so please record it as soon as it is visible from the Azure Portal.
-
-Leave the browser open to this page. 
+   - Type a key description (of instance `app secret`),
+   - Select a key duration of either **In 1 year**, **In 2 years**, or **Never Expires**.
+   - When you press the **Add** button, the key value will be displayed, copy, and save the value in a safe location.
+   - You'll need this key later to configure the project in Visual Studio. This key value will not be displayed again, nor retrievable by any other means,
+     so record it as soon as it is visible from the Azure portal.
+1. In the list of pages for the app, select **API permissions**
+   - Click the **Add a permission** button and then,
+   - Ensure that the **Microsoft APIs** tab is selected
+   - In the *Commonly used Microsoft APIs* section, click on **Microsoft Graph**
+   - In the **Delegated permissions** section, ensure that the right permissions are checked: **User.Read**. Use the search box if necessary.
+   - In the **Application permissions** section, ensure that the right permissions are checked: **User.Read.All**
+   - Select the **Add permissions** button
 
 ### Step 5:  Configure the sample to use your Azure Active Directory tenant
 
-At this point we are ready to paste the configuration settings into the VS project that will tie it to its entry in your Azure AD tenant. 
+In the steps below, "ClientID" is the same as "Application ID" or "AppId".
 
-1. Open the solution in Visual Studio 2013, by double clicking on the WebApp-WebAPI-MultiTenant-OpenIDConnect-DotNet.sln file in the repository you closed in Step 1.
-2. Open the `web.config` file in the TodoListWebApp project, and locate the <appSettings> section.
-3. Find the key `ida:Password` and replace the value in quotes in the `value` attribute with the string you copied in step 4.
-4. Go back to the portal, find the Application ID field and copy its content to the clipboard
-5. Find the key `ida:ClientID` and replace the value in quotes the `value` attribute with the Application ID from the Azure portal.
+Open the solution in Visual Studio to configure the projects
+
+#### Configure the service project
+
+> Note: if you used the setup scripts, the changes below will have been applied for you
+
+1. Open the `TodoListWebApp\Web.Config` file
+1. Find the app key `ida:ClientId` and replace the existing value with the application ID (clientId) of the `TodoListWebApp_MT` application copied from the Azure portal.
+1. Find the app key `ida:ClientSecret` and replace the existing value with the key you saved during the creation of the `TodoListWebApp_MT` app, in the Azure portal.
 
 ### Step 6:  [optional] Create an Azure Active Directory test tenant 
 

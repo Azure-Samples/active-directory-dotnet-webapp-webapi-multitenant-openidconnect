@@ -1,9 +1,9 @@
 {
   "Sample": {
-    "Title": "Build a multi-tenant SaaS web application that calls a web API using Azure AD",
+    "Title": "A sample .NET 4.5 MVC SaaS web app that signs-up and signs-in users from any Azure AD tenant, and calls the Azure AD Graph API.",
     "Level": 200,
     "Client": ".NET Web App (MVC)",
-    "Service": "Microsoft Graph",    
+    "Service": "Azure AD Graph",    
     "RepositoryUrl": "active-directory-dotnet-webapp-webapi-multitenant-openidconnect",
     "Endpoint": "AAD v1.0"
   },
@@ -14,11 +14,11 @@
   "AADApps": [
     {
       "Id": "service",
-      "Name": "TodoList_MT",
+      "Name": "TodoListWebApp_MT",
       "Kind": "WebApp",
       "IsPublicClient": false,
       "HomePage": "https://localhost:44302/",
-      "ReplyUrls": "https://localhost:44302/",
+      "ReplyUrls": "https://localhost:44302/,https://localhost:44302/Onboarding/ProcessCode",
       "LogoutUrl": "https://localhost:44302/Account/EndSession",
       "PasswordCredentials": "Auto",
       "IsAvailableToOtherTenants":true,
@@ -50,10 +50,6 @@
         {
           "key": "ida:ClientSecret",
           "value": ".AppKey"
-        },
-        {
-          "key": "ida:RedirectUri",
-          "value": "service.HomePage"
         }
       ]
     }    
