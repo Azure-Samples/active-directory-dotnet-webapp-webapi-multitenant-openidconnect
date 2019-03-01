@@ -10,7 +10,7 @@ using Microsoft.Owin.Security;
 using Microsoft.Owin.Security.Cookies;
 using Microsoft.Owin.Security.OpenIdConnect;
 using Owin;
-using TodoList_MT.Models;
+using TokenCaches.ADALTokenCache.Data;
 
 namespace TodoList_MT
 {
@@ -21,7 +21,6 @@ namespace TodoList_MT
         private string graphResourceID = "https://graph.windows.net";
         private static string aadInstance = EnsureTrailingSlash(ConfigurationManager.AppSettings["ida:AADInstance"]);
         private string authority = aadInstance + "common";
-        private ApplicationDbContext db = new ApplicationDbContext();
 
         public void ConfigureAuth(IAppBuilder app)
         {
@@ -53,9 +52,8 @@ namespace TodoList_MT
 
                             ClientCredential credential = new ClientCredential(clientId, appKey);
                             string tenantID = context.AuthenticationTicket.Identity.FindFirst("http://schemas.microsoft.com/identity/claims/tenantid").Value;
-                            string signedInUserID = context.AuthenticationTicket.Identity.FindFirst(ClaimTypes.NameIdentifier).Value;
 
-                            AuthenticationContext authContext = new AuthenticationContext(aadInstance + tenantID, new ADALTokenCache(signedInUserID));
+                            AuthenticationContext authContext = new AuthenticationContext(aadInstance + tenantID, new EFADALPerUserTokenCache());
                             AuthenticationResult result = authContext.AcquireTokenByAuthorizationCodeAsync(
                                 code, new Uri(HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Path)), credential, graphResourceID).Result;
 
@@ -63,7 +61,7 @@ namespace TodoList_MT
                         },
                         AuthenticationFailed = (context) =>
                         {
-                            context.OwinContext.Response.Redirect("/Home/Error");
+                            context.Response.Redirect("/Error/ShowError?signIn=true&errorMessage=" + context.Exception.Message);
                             context.HandleResponse(); // Suppress the exception
                             return Task.FromResult(0);
                         }
